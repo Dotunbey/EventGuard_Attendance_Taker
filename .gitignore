@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.py[cod]
+venv/
+myenv/
+.env
+
+# Project Data (Don't upload binary DBs or Logs)
+data/encodings.pkl
+data/access_log.csv
+
+# Assets (Don't upload personal photos)
+assets/guest_photos/*
+!assets/guest_photos/.gitkeep
