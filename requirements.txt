@@ -1,0 +1,6 @@
+opencv-python-headless
+face-recognition
+streamlit
+scipy
+pandas
+numpy
