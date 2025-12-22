@@ -5,7 +5,7 @@
 ![Streamlit](https://img.shields.io/badge/Streamlit-Real--Time%20Dashboard-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
-> **A production-grade computer vision pipeline for secure event entry, featuring liveness detection, O(1) state management, and real-time analytics.**
+> **A production-grade computer vision pipeline for secure event entry, featuring liveness detection, O(1) state management, and real-time analytics**
 
 
 
