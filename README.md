@@ -106,7 +106,7 @@ face-env-ingest\Scripts\activate
 We install a specific `numpy` version and the custom `dlib` wheel provided by `z-mahmud22` to bypass build errors.
 
 ```bash
-# Upgrade build tools
+# Upgrade build tools to avoid uncertain errors
 python -m pip install --upgrade pip setuptools wheel
 
 # Install compatible Numpy
