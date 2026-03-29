@@ -190,7 +190,7 @@ python gatekeeper.py
 ## 🔧 Troubleshooting
 
 **"Unsupported image type" Error**
-If you see this during ingestion, do not worry. The `ingest.py` script includes a custom `robust_load()` function that automatically fixes memory stride issues and converts images to a `dlib`-compatible format.
+If you see this during ingestion, do not worry. The `ingest.py` script includes a custom `robust_load()` function that automatically fixes memory stride issues and converts the images to a `dlib`-compatible format.
 
 **Camera lags or crashes**
 Ensure you are running the `gatekeeper.py` with the GPU-optimized `opencv-python`. If lag persists, check `src/config.py` and lower the `FRAME_RESIZE_SCALE`.
