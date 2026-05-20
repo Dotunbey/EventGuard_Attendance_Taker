@@ -1,7 +1,8 @@
-"""EventGuard Command Center: Streamlit dashboard with authentication."""
+"""EventGuard Command Center: Streamlit dashboard with high-volume metrics."""
 
 import logging
 import os
+from datetime import datetime
 
 import pandas as pd
 import streamlit as st
@@ -23,7 +24,7 @@ logger = logging.getLogger(__name__)
 st.set_page_config(page_title="EventGuard Ops", layout="wide")
 
 
-# ── Authentication ───────────────────────────────────────────────
+# -- Authentication -------------------------------------------------------
 
 def _get_credentials() -> tuple:
     """Resolve dashboard credentials from st.secrets or env vars."""
@@ -51,7 +52,7 @@ def check_auth() -> bool:
     if st.session_state.get("authenticated"):
         return True
 
-    st.title("Login — EventGuard Command Center")
+    st.title("Login \u2014 EventGuard Command Center")
     with st.form("login_form"):
         input_user = st.text_input("Username")
         input_pass = st.text_input("Password", type="password")
@@ -67,7 +68,7 @@ def check_auth() -> bool:
     return False
 
 
-# ── Dashboard ────────────────────────────────────────────────────
+# -- Dashboard ------------------------------------------------------------
 
 def get_metrics():
     """Fetch metrics from SQLite database."""
@@ -89,6 +90,22 @@ def get_metrics():
     return total_invited, len(df), df
 
 
+def _compute_detection_rate(df: pd.DataFrame) -> float:
+    """Return faces-per-minute based on the earliest and latest log entries."""
+    if df.empty or "Time" not in df.columns:
+        return 0.0
+    try:
+        times = pd.to_datetime(df["Time"], format="%H:%M:%S", errors="coerce").dropna()
+        if len(times) < 2:
+            return 0.0
+        span_minutes = (times.max() - times.min()).total_seconds() / 60.0
+        if span_minutes <= 0:
+            return 0.0
+        return len(times) / span_minutes
+    except Exception:
+        return 0.0
+
+
 def render_dashboard():
     """Render the main dashboard view."""
     init_db()
@@ -97,27 +114,52 @@ def render_dashboard():
 
     total, inside, df = get_metrics()
 
-    m1, m2, m3 = st.columns(3)
+    unique_faces = df["Name"].nunique() if not df.empty else 0
+    detection_rate = _compute_detection_rate(df)
+
+    m1, m2, m3, m4, m5 = st.columns(5)
     m1.metric("Total Guest List", total)
 
     percentage = f"{inside / total:.1%}" if total > 0 else "0%"
     m2.metric("Checked In", inside, delta=percentage)
     m3.metric("Remaining", max(total - inside, 0))
+    m4.metric("Unique Faces", unique_faces)
+    m5.metric("Rate (faces/min)", f"{detection_rate:.1f}")
 
     st.divider()
     st.subheader("Live Access Feed")
 
+    col_filter, col_search = st.columns([1, 2])
+    with col_filter:
+        status_options = ["All"]
+        if not df.empty and "Status" in df.columns:
+            status_options += sorted(df["Status"].unique().tolist())
+        selected_status = st.selectbox("Filter by status", status_options)
+
+    with col_search:
+        search_query = st.text_input("Search by name", "")
+
+    filtered_df = df.copy()
+    if selected_status != "All" and not filtered_df.empty:
+        filtered_df = filtered_df[filtered_df["Status"] == selected_status]
+    if search_query and not filtered_df.empty:
+        filtered_df = filtered_df[
+            filtered_df["Name"].str.contains(search_query, case=False, na=False)
+        ]
+
     st.dataframe(
-        df,
+        filtered_df,
         use_container_width=True,
         hide_index=True,
     )
+
+    st.caption(f"Showing {len(filtered_df)} of {len(df)} entries")
 
     if st.button("Refresh"):
         st.rerun()
 
 
-# ── Entry point ──────────────────────────────────────────────────
+# -- Entry point ----------------------------------------------------------
 
 if check_auth():
     render_dashboard()
