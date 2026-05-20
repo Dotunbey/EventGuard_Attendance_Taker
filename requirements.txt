@@ -1,6 +1,9 @@
 opencv-python-headless
 face-recognition
+dlib
 streamlit
 scipy
 pandas
 numpy
+cryptography
+pytest
