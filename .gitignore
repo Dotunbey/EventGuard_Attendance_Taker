@@ -8,6 +8,10 @@ myenv/
 # Project Data (Don't upload binary DBs or Logs)
 data/encodings.pkl
 data/access_log.csv
+data/eventguard.db
+data/eventguard.db-wal
+data/eventguard.db-shm
+data/eventguard.log
 
 # Assets (Don't upload personal photos)
 assets/guest_photos/*
